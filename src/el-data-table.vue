@@ -6,7 +6,7 @@
             <slot name="search"></slot>
             <el-form-item>
                 <!--https://github.com/ElemeFE/element/pull/5920-->
-                <el-button native-type="submit" type="primary" @click="page = defaultFirstPage; getListWithQuery()" size="small">查询</el-button>
+                <el-button native-type="submit" type="primary" @click="search" size="small">查询</el-button>
                 <el-button @click="resetSearch" size="small">重置</el-button>
             </el-form-item>
         </el-form-renderer>
@@ -173,6 +173,8 @@ import qs from 'qs'
 // 可根据实际情况传入 data/total 两个字段的路径, 分别对应上面数据结构中的 content/totalElements
 // 如果接口不分页, 则传hasPagination=false, 此时数据取 payload, 当然也可以自定义, 设置dataPath即可
 
+const defaultFirstPage = 1
+
 const dataPath = 'payload.content'
 const totalPath = 'payload.totalElements'
 const noPaginationDataPath = 'payload'
@@ -195,13 +197,11 @@ const valueSeparatorPattern = new RegExp(valueSeparator, 'g')
 const queryFlag = 'q='
 const queryPattern = new RegExp('q=.*' + paramSeparator)
 
-const defaultFirstPage = 1
-
 export default {
   name: 'ElDataTable',
   props: {
     /**
-     * 请求url, 如果为空, 则不会发送请求
+     * 请求url, 如果为空, 则不会发送请求; 改变url, 则table会重新发送请求
      */
     url: {
       type: String,
@@ -254,6 +254,15 @@ export default {
       type: Array,
       default() {
         return []
+      }
+    },
+    /**
+     * 点击查询按钮, 查询前执行的函数, 需要返回Promise
+     */
+    beforeSearch: {
+      type: Function,
+      default() {
+        return Promise.resolve()
       }
     },
     /**
@@ -521,10 +530,10 @@ export default {
       hasSelect: this.columns.length && this.columns[0].type == 'selection',
       size: this.paginationSize || this.paginationSizes[0],
       page: defaultFirstPage,
-      total: 0,
+      // https://github.com/ElemeFE/element/issues/1153
+      total: null,
       loading: false,
       selected: [],
-      defaultFirstPage,
 
       //弹窗
       dialogTitle: this.dialogNewTitle,
@@ -538,8 +547,7 @@ export default {
 
       // 初始的customQuery值, 重置查询时, 会用到
       // JSON.stringify是为了后面深拷贝作准备
-      initCustomQuery: JSON.stringify(this.customQuery),
-      params: ''
+      initCustomQuery: JSON.stringify(this.customQuery)
     }
   },
   mounted() {
@@ -598,7 +606,7 @@ export default {
     }
   },
   methods: {
-    getList() {
+    getList(shouldStoreQuery) {
       let searchForm = this.$refs.searchForm
       let formQuery = searchForm ? searchForm.getFormValue() : {}
       // TODO Object.assign IE不支持, 所以后面Object.keys的保守其实是没有必要的。。。
@@ -617,11 +625,7 @@ export default {
       if (url.indexOf('?') > -1) url += '&'
       else url += '?'
 
-      // 根据偏移值计算接口正确的页数
-      let pageOffset = this.firstPage - defaultFirstPage
-      let page = this.page + pageOffset
-
-      params += `page=${page}&size=${size}`
+      params += `size=${size}`
 
       // 无效值过滤. query 有可能值为 0, 所以只能这样过滤
       // TODO Object.values IE11不兼容, 暂时使用Object.keys
@@ -637,20 +641,23 @@ export default {
           ''
         )
 
-      this.params = params
+      // 根据偏移值计算接口正确的页数
+      let pageOffset = this.firstPage - defaultFirstPage
+      let page = this.page + pageOffset
 
       // 请求开始
       this.loading = true
 
       this.$axios
-        .get(url + params)
+        .get(url + params + `&page=${page}`)
         .then(resp => {
           let res = resp.data
           let data = []
 
           // 不分页
           if (!this.hasPagination) {
-            data = _get(res, dataPath) || _get(res, noPaginationDataPath) || []
+            data =
+              _get(res, this.dataPath) || _get(res, noPaginationDataPath) || []
           } else {
             data = _get(res, this.dataPath) || []
             this.total = _get(res, this.totalPath)
@@ -678,68 +685,57 @@ export default {
           this.$emit('error', err)
           this.loading = false
         })
-    },
-    getListWithQuery() {
-      this.getList()
-
-      if (!this.routerMode) return
 
       // 存储query记录, 便于后面恢复
-      let newUrl = ''
-      let searchQuery =
-        queryFlag +
-        this.params
-          .replace(/&/g, paramSeparator)
-          .replace(equalPattern, valueSeparator) +
-        paramSeparator
+      if (this.routerMode && shouldStoreQuery > 0) {
+        let newUrl = ''
+        let searchQuery =
+          queryFlag +
+          (params + `&page=${this.page}`)
+            .replace(/&/g, paramSeparator)
+            .replace(equalPattern, valueSeparator) +
+          paramSeparator
 
-      // 非第一次查询
-      if (location.href.indexOf(queryFlag) > -1) {
-        newUrl = location.href.replace(queryPattern, searchQuery)
-      } else if (this.routerMode == 'hash') {
-        let search =
-          location.hash.indexOf('?') > -1
-            ? `&${searchQuery}`
-            : `?${searchQuery}`
-        newUrl =
-          location.origin +
-          location.pathname +
-          location.search +
-          location.hash +
-          search
-      } else {
-        let search = location.search ? `&${searchQuery}` : `?${searchQuery}`
-        newUrl =
-          location.origin +
-          location.pathname +
-          location.search +
-          search +
-          location.hash
+        // 非第一次查询
+        if (location.href.indexOf(queryFlag) > -1) {
+          newUrl = location.href.replace(queryPattern, searchQuery)
+        } else if (this.routerMode == 'hash') {
+          let search =
+            location.hash.indexOf('?') > -1
+              ? `&${searchQuery}`
+              : `?${searchQuery}`
+          newUrl =
+            location.origin +
+            location.pathname +
+            location.search +
+            location.hash +
+            search
+        } else {
+          let search = location.search ? `&${searchQuery}` : `?${searchQuery}`
+          newUrl =
+            location.origin +
+            location.pathname +
+            location.search +
+            search +
+            location.hash
+        }
+
+        history.pushState(history.state, 'el-data-table search', newUrl)
       }
-
-      history.pushState(history.state, 'el-data-table search', newUrl)
     },
-    handleSizeChange(val) {
-      if (this.size === val) return
+    search() {
+      this.$refs.searchForm.validate(valid => {
+        if (!valid) return
 
-      this.page = defaultFirstPage
-      this.size = val
-      this.getListWithQuery()
-    },
-    handleCurrentChange(val) {
-      if (this.page === val) return
-
-      this.page = val
-      this.getListWithQuery()
-    },
-    handleSelectionChange(val) {
-      this.selected = val
-
-      /**
-       * 多选启用时生效, 返回(selected)已选中行的数组
-       * @event selection-change
-       */
-      this.$emit('selection-change', val)
+        this.beforeSearch()
+          .then(() => {
+            this.page = defaultFirstPage
+            this.getList(true)
+          })
+          .catch(err => {
+            this.$emit('error', err)
+          })
+      })
     },
     resetSearch() {
       // reset后, form里的值会变成 undefined, 在下一次查询会赋值给query
@@ -768,6 +764,28 @@ export default {
         'update:customQuery',
         Object.assign(this.customQuery, JSON.parse(this.initCustomQuery))
       )
+    },
+    handleSizeChange(val) {
+      if (this.size === val) return
+
+      this.page = defaultFirstPage
+      this.size = val
+      this.getList(true)
+    },
+    handleCurrentChange(val) {
+      if (this.page === val) return
+
+      this.page = val
+      this.getList(true)
+    },
+    handleSelectionChange(val) {
+      this.selected = val
+
+      /**
+       * 多选启用时生效, 返回(selected)已选中行的数组
+       * @event selection-change
+       */
+      this.$emit('selection-change', val)
     },
     // 弹窗相关
     // 除非树形结构在操作列点击新增, 否则 row 都是 undefined

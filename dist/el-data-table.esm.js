@@ -15,6 +15,8 @@ import qs from 'qs';
 // 可根据实际情况传入 data/total 两个字段的路径, 分别对应上面数据结构中的 content/totalElements
 // 如果接口不分页, 则传hasPagination=false, 此时数据取 payload, 当然也可以自定义, 设置dataPath即可
 
+var defaultFirstPage = 1;
+
 var dataPath = 'payload.content';
 var totalPath = 'payload.totalElements';
 var noPaginationDataPath = 'payload';
@@ -37,11 +39,11 @@ var valueSeparatorPattern = new RegExp(valueSeparator, 'g');
 var queryFlag = 'q=';
 var queryPattern = new RegExp('q=.*' + paramSeparator);
 
-var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"el-data-table"},[(_vm.searchForm.length > 0 || !!_vm.$slots.search)?_c('el-form-renderer',{ref:"searchForm",attrs:{"inline":"","content":_vm.searchForm}},[_vm._t("search"),_vm._v(" "),_c('el-form-item',[_c('el-button',{attrs:{"native-type":"submit","type":"primary","size":"small"},on:{"click":function($event){_vm.page = _vm.firstPage; _vm.getList(1);}}},[_vm._v("查询")]),_vm._v(" "),_c('el-button',{attrs:{"size":"small"},on:{"click":_vm.resetSearch}},[_vm._v("重置")])],1)],2):_vm._e(),_vm._v(" "),(_vm.hasNew || _vm.hasDelete || _vm.headerButtons.length > 0 )?_c('el-form',[_c('el-form-item',[(_vm.hasNew)?_c('el-button',{attrs:{"type":"primary","size":"small"},on:{"click":_vm.onDefaultNew}},[_vm._v("新增")]):_vm._e(),_vm._v(" "),_vm._l((_vm.headerButtons),function(btn,i){return ('show' in btn ? btn.show(_vm.selected) : true)?_c('el-button',_vm._b({key:i,attrs:{"disabled":'disabled' in btn ? btn.disabled(_vm.selected) : false,"size":"small"},on:{"click":function($event){btn.atClick(_vm.selected);}}},'el-button',btn,false),[_vm._v(_vm._s(btn.text))]):_vm._e()}),_vm._v(" "),(_vm.hasSelect && _vm.hasDelete)?_c('el-button',{attrs:{"type":"danger","size":"small","disabled":_vm.single ? (!_vm.selected.length || _vm.selected.length > 1) : !_vm.selected.length},on:{"click":function($event){_vm.onDefaultDelete($event);}}},[_vm._v("删除")]):_vm._e()],2)],1):_vm._e(),_vm._v(" "),_c('el-table',_vm._b({directives:[{name:"loading",rawName:"v-loading",value:(_vm.loading),expression:"loading"}],ref:"table",attrs:{"data":_vm.data,"row-style":_vm.showRow},on:{"selection-change":_vm.handleSelectionChange}},'el-table',_vm.tableAttrs,false),[(_vm.isTree)?[(_vm.hasSelect)?[_c('el-table-column',_vm._b({key:"selection-key"},'el-table-column',_vm.columns[0],false)),_vm._v(" "),_c('el-table-column',_vm._b({key:"tree-ctrl",scopedSlots:_vm._u([{key:"default",fn:function(scope){return [_vm._l((scope.row._level),function(space){return (_vm.isTree)?_c('span',{key:space,staticClass:"ms-tree-space"}):_vm._e()}),_vm._v(" "),(_vm.isTree && _vm.iconShow(scope.$index, scope.row))?_c('span',{staticClass:"tree-ctrl",on:{"click":function($event){_vm.toggleExpanded(scope.$index);}}},[(!scope.row._expanded)?_c('i',{staticClass:"el-icon-plus"}):_c('i',{staticClass:"el-icon-minus"})]):_vm._e(),_vm._v(" "+_vm._s(scope.row[_vm.columns[1].prop])+" ")]}}])},'el-table-column',_vm.columns[1],false)),_vm._v(" "),_vm._l((_vm.columns.filter(function (c, i) { return i !== 0 && i !== 1; })),function(col){return _c('el-table-column',_vm._b({key:col.prop},'el-table-column',col,false))})]:[_c('el-table-column',_vm._b({key:"tree-ctrl",scopedSlots:_vm._u([{key:"default",fn:function(scope){return [_vm._l((scope.row._level),function(space){return (_vm.isTree)?_c('span',{key:space,staticClass:"ms-tree-space"}):_vm._e()}),_vm._v(" "),(_vm.isTree && _vm.iconShow(scope.$index, scope.row))?_c('span',{staticClass:"tree-ctrl",on:{"click":function($event){_vm.toggleExpanded(scope.$index);}}},[(!scope.row._expanded)?_c('i',{staticClass:"el-icon-plus"}):_c('i',{staticClass:"el-icon-minus"})]):_vm._e(),_vm._v(" "+_vm._s(scope.row[_vm.columns[0].prop])+" ")]}}])},'el-table-column',_vm.columns[0],false)),_vm._v(" "),_vm._l((_vm.columns.filter(function (c, i) { return i !== 0; })),function(col){return _c('el-table-column',_vm._b({key:col.prop},'el-table-column',col,false))})]]:_vm._l((_vm.columns),function(col){return _c('el-table-column',_vm._b({key:col.prop},'el-table-column',col,false))}),_vm._v(" "),(_vm.hasOperation)?_c('el-table-column',_vm._b({attrs:{"label":"操作"},scopedSlots:_vm._u([{key:"default",fn:function(scope){return [(_vm.isTree && _vm.hasNew)?_c('el-button',{attrs:{"type":"primary","size":"small"},on:{"click":function($event){_vm.onDefaultNew(scope.row);}}},[_vm._v("新增")]):_vm._e(),_vm._v(" "),(_vm.hasEdit)?_c('el-button',{attrs:{"size":"small"},on:{"click":function($event){_vm.onDefaultEdit(scope.row);}}},[_vm._v(" 修改 ")]):_vm._e(),_vm._v(" "),(_vm.hasView)?_c('el-button',{attrs:{"type":"info","size":"small"},on:{"click":function($event){_vm.onDefaultView(scope.row);}}},[_vm._v(" 查看 ")]):_vm._e(),_vm._v(" "),_vm._l((_vm.extraButtons),function(btn,i){return ('show' in btn ? btn.show(scope.row) : true)?_c('el-button',_vm._b({key:i,attrs:{"size":"small"},on:{"click":function($event){btn.atClick(scope.row);}}},'el-button',btn,false),[_vm._v(" "+_vm._s(btn.text)+" ")]):_vm._e()}),_vm._v(" "),(!_vm.hasSelect && _vm.hasDelete && _vm.canDelete(scope.row))?_c('el-button',{attrs:{"type":"danger","size":"small"},on:{"click":function($event){_vm.onDefaultDelete(scope.row);}}},[_vm._v(" 删除 ")]):_vm._e()]}}])},'el-table-column',_vm.operationAttrs,false)):_vm._e(),_vm._v(" "),_vm._t("default")],2),_vm._v(" "),(_vm.hasPagination)?_c('el-pagination',{staticStyle:{"text-align":"right","padding":"10px 0"},attrs:{"current-page":_vm.page,"page-sizes":_vm.paginationSizes,"page-size":_vm.size,"total":_vm.total,"layout":_vm.paginationLayout},on:{"size-change":_vm.handleSizeChange,"current-change":_vm.handleCurrentChange}}):_vm._e(),_vm._v(" "),(_vm.hasDialog)?_c('el-dialog',{attrs:{"title":_vm.dialogTitle,"visible":_vm.dialogVisible},on:{"update:visible":function($event){_vm.dialogVisible=$event;}}},[_c('el-form-renderer',_vm._b({ref:"dialogForm",attrs:{"content":_vm.form,"disabled":_vm.isView}},'el-form-renderer',_vm.formAttrs,false),[_vm._t("form")],2),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(!_vm.isView),expression:"!isView"}],attrs:{"slot":"footer"},slot:"footer"},[_c('el-button',{attrs:{"size":"small"},on:{"click":_vm.cancel}},[_vm._v("取 消")]),_vm._v(" "),_c('el-button',{directives:[{name:"loading",rawName:"v-loading",value:(_vm.confirmLoading),expression:"confirmLoading"}],attrs:{"type":"primary","size":"small"},on:{"click":_vm.confirm}},[_vm._v("确 定")])],1)],1):_vm._e()],1)},staticRenderFns: [],
+var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"el-data-table"},[(_vm.searchForm.length > 0 || !!_vm.$slots.search)?_c('el-form-renderer',{ref:"searchForm",attrs:{"inline":"","content":_vm.searchForm}},[_vm._t("search"),_vm._v(" "),_c('el-form-item',[_c('el-button',{attrs:{"native-type":"submit","type":"primary","size":"small"},on:{"click":_vm.search}},[_vm._v("查询")]),_vm._v(" "),_c('el-button',{attrs:{"size":"small"},on:{"click":_vm.resetSearch}},[_vm._v("重置")])],1)],2):_vm._e(),_vm._v(" "),(_vm.hasNew || _vm.hasDelete || _vm.headerButtons.length > 0 )?_c('el-form',[_c('el-form-item',[(_vm.hasNew)?_c('el-button',{attrs:{"type":"primary","size":"small"},on:{"click":_vm.onDefaultNew}},[_vm._v("新增")]):_vm._e(),_vm._v(" "),_vm._l((_vm.headerButtons),function(btn,i){return ('show' in btn ? btn.show(_vm.selected) : true)?_c('el-button',_vm._b({key:i,attrs:{"disabled":'disabled' in btn ? btn.disabled(_vm.selected) : false,"size":"small"},on:{"click":function($event){btn.atClick(_vm.selected);}}},'el-button',btn,false),[_vm._v(_vm._s(btn.text))]):_vm._e()}),_vm._v(" "),(_vm.hasSelect && _vm.hasDelete)?_c('el-button',{attrs:{"type":"danger","size":"small","disabled":_vm.single ? (!_vm.selected.length || _vm.selected.length > 1) : !_vm.selected.length},on:{"click":function($event){_vm.onDefaultDelete($event);}}},[_vm._v("删除")]):_vm._e()],2)],1):_vm._e(),_vm._v(" "),_c('el-table',_vm._b({directives:[{name:"loading",rawName:"v-loading",value:(_vm.loading),expression:"loading"}],ref:"table",attrs:{"data":_vm.data,"row-style":_vm.showRow},on:{"selection-change":_vm.handleSelectionChange}},'el-table',_vm.tableAttrs,false),[(_vm.isTree)?[(_vm.hasSelect)?[_c('el-table-column',_vm._b({key:"selection-key"},'el-table-column',_vm.columns[0],false)),_vm._v(" "),_c('el-table-column',_vm._b({key:"tree-ctrl",scopedSlots:_vm._u([{key:"default",fn:function(scope){return [_vm._l((scope.row._level),function(space){return (_vm.isTree)?_c('span',{key:space,staticClass:"ms-tree-space"}):_vm._e()}),_vm._v(" "),(_vm.isTree && _vm.iconShow(scope.$index, scope.row))?_c('span',{staticClass:"tree-ctrl",on:{"click":function($event){_vm.toggleExpanded(scope.$index);}}},[(!scope.row._expanded)?_c('i',{staticClass:"el-icon-plus"}):_c('i',{staticClass:"el-icon-minus"})]):_vm._e(),_vm._v(" "+_vm._s(scope.row[_vm.columns[1].prop])+" ")]}}])},'el-table-column',_vm.columns[1],false)),_vm._v(" "),_vm._l((_vm.columns.filter(function (c, i) { return i !== 0 && i !== 1; })),function(col){return _c('el-table-column',_vm._b({key:col.prop},'el-table-column',col,false))})]:[_c('el-table-column',_vm._b({key:"tree-ctrl",scopedSlots:_vm._u([{key:"default",fn:function(scope){return [_vm._l((scope.row._level),function(space){return (_vm.isTree)?_c('span',{key:space,staticClass:"ms-tree-space"}):_vm._e()}),_vm._v(" "),(_vm.isTree && _vm.iconShow(scope.$index, scope.row))?_c('span',{staticClass:"tree-ctrl",on:{"click":function($event){_vm.toggleExpanded(scope.$index);}}},[(!scope.row._expanded)?_c('i',{staticClass:"el-icon-plus"}):_c('i',{staticClass:"el-icon-minus"})]):_vm._e(),_vm._v(" "+_vm._s(scope.row[_vm.columns[0].prop])+" ")]}}])},'el-table-column',_vm.columns[0],false)),_vm._v(" "),_vm._l((_vm.columns.filter(function (c, i) { return i !== 0; })),function(col){return _c('el-table-column',_vm._b({key:col.prop},'el-table-column',col,false))})]]:_vm._l((_vm.columns),function(col){return _c('el-table-column',_vm._b({key:col.prop},'el-table-column',col,false))}),_vm._v(" "),(_vm.hasOperation)?_c('el-table-column',_vm._b({attrs:{"label":"操作"},scopedSlots:_vm._u([{key:"default",fn:function(scope){return [(_vm.isTree && _vm.hasNew)?_c('el-button',{attrs:{"type":"primary","size":"small"},on:{"click":function($event){_vm.onDefaultNew(scope.row);}}},[_vm._v("新增")]):_vm._e(),_vm._v(" "),(_vm.hasEdit)?_c('el-button',{attrs:{"size":"small"},on:{"click":function($event){_vm.onDefaultEdit(scope.row);}}},[_vm._v(" 修改 ")]):_vm._e(),_vm._v(" "),(_vm.hasView)?_c('el-button',{attrs:{"type":"info","size":"small"},on:{"click":function($event){_vm.onDefaultView(scope.row);}}},[_vm._v(" 查看 ")]):_vm._e(),_vm._v(" "),_vm._l((_vm.extraButtons),function(btn,i){return ('show' in btn ? btn.show(scope.row) : true)?_c('el-button',_vm._b({key:i,attrs:{"size":"small"},on:{"click":function($event){btn.atClick(scope.row);}}},'el-button',btn,false),[_vm._v(" "+_vm._s(btn.text)+" ")]):_vm._e()}),_vm._v(" "),(!_vm.hasSelect && _vm.hasDelete && _vm.canDelete(scope.row))?_c('el-button',{attrs:{"type":"danger","size":"small"},on:{"click":function($event){_vm.onDefaultDelete(scope.row);}}},[_vm._v(" 删除 ")]):_vm._e()]}}])},'el-table-column',_vm.operationAttrs,false)):_vm._e(),_vm._v(" "),_vm._t("default")],2),_vm._v(" "),(_vm.hasPagination)?_c('el-pagination',{staticStyle:{"text-align":"right","padding":"10px 0"},attrs:{"current-page":_vm.page,"page-sizes":_vm.paginationSizes,"page-size":_vm.size,"total":_vm.total,"layout":_vm.paginationLayout},on:{"size-change":_vm.handleSizeChange,"current-change":_vm.handleCurrentChange}}):_vm._e(),_vm._v(" "),(_vm.hasDialog)?_c('el-dialog',{attrs:{"title":_vm.dialogTitle,"visible":_vm.dialogVisible},on:{"update:visible":function($event){_vm.dialogVisible=$event;}}},[_c('el-form-renderer',_vm._b({ref:"dialogForm",attrs:{"content":_vm.form,"disabled":_vm.isView}},'el-form-renderer',_vm.formAttrs,false),[_vm._t("form")],2),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(!_vm.isView),expression:"!isView"}],attrs:{"slot":"footer"},slot:"footer"},[_c('el-button',{attrs:{"size":"small"},on:{"click":_vm.cancel}},[_vm._v("取 消")]),_vm._v(" "),_c('el-button',{directives:[{name:"loading",rawName:"v-loading",value:(_vm.confirmLoading),expression:"confirmLoading"}],attrs:{"type":"primary","size":"small"},on:{"click":_vm.confirm}},[_vm._v("确 定")])],1)],1):_vm._e()],1)},staticRenderFns: [],
   name: 'ElDataTable',
   props: {
     /**
-     * 请求url, 如果为空, 则不会发送请求
+     * 请求url, 如果为空, 则不会发送请求; 改变url, 则table会重新发送请求
      */
     url: {
       type: String,
@@ -60,7 +62,7 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
      */
     firstPage: {
       type: Number,
-      default: 1
+      default: defaultFirstPage
     },
     /**
      * 渲染组件的分页数据在接口返回的数据中的路径, 嵌套对象使用.表示即可
@@ -97,6 +99,15 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       }
     },
     /**
+     * 点击查询按钮, 查询前执行的函数, 需要返回Promise
+     */
+    beforeSearch: {
+      type: Function,
+      default: function default$3() {
+        return Promise.resolve()
+      }
+    },
+    /**
      * 路由模式, hash | history || '', 决定了查询参数存放的形式, 设置为空则不存储查询参数
      */
     routerMode: {
@@ -123,7 +134,7 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
      */
     extraButtons: {
       type: Array,
-      default: function default$3() {
+      default: function default$4() {
         return []
       }
     },
@@ -133,7 +144,7 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
      */
     headerButtons: {
       type: Array,
-      default: function default$4() {
+      default: function default$5() {
         return []
       }
     },
@@ -170,7 +181,7 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
      */
     canDelete: {
       type: Function,
-      default: function default$5() {
+      default: function default$6() {
         return true
       }
     },
@@ -272,7 +283,7 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
      */
     tableAttrs: {
       type: Object,
-      default: function default$6() {
+      default: function default$7() {
         return {}
       }
     },
@@ -281,7 +292,7 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
      */
     operationAttrs: {
       type: Object,
-      default: function default$7() {
+      default: function default$8() {
         return {width: '', fixed: 'right'}
       }
     },
@@ -316,7 +327,7 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
      */
     form: {
       type: Array,
-      default: function default$8() {
+      default: function default$9() {
         return []
       }
     },
@@ -326,7 +337,7 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
      */
     formAttrs: {
       type: Object,
-      default: function default$9() {
+      default: function default$10() {
         return {}
       }
     },
@@ -341,7 +352,7 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
      */
     beforeConfirm: {
       type: Function,
-      default: function default$10() {
+      default: function default$11() {
         return true
       }
     },
@@ -350,7 +361,7 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
      */
     customQuery: {
       type: Object,
-      default: function default$11() {
+      default: function default$12() {
         return {}
       }
     }
@@ -360,8 +371,9 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       data: [],
       hasSelect: this.columns.length && this.columns[0].type == 'selection',
       size: this.paginationSize || this.paginationSizes[0],
-      page: this.firstPage,
-      total: 0,
+      page: defaultFirstPage,
+      // https://github.com/ElemeFE/element/issues/1153
+      total: null,
       loading: false,
       selected: [],
 
@@ -415,7 +427,7 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   },
   watch: {
     url: function(val, old) {
-      this.page = this.firstPage;
+      this.page = defaultFirstPage;
       this.getList();
     },
     dialogVisible: function(val, old) {
@@ -461,7 +473,7 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       if (url.indexOf('?') > -1) { url += '&'; }
       else { url += '?'; }
 
-      params += "page=" + (this.page) + "&size=" + size;
+      params += "size=" + size;
 
       // 无效值过滤. query 有可能值为 0, 所以只能这样过滤
       // TODO Object.values IE11不兼容, 暂时使用Object.keys
@@ -476,18 +488,23 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
           ''
         );
 
+      // 根据偏移值计算接口正确的页数
+      var pageOffset = this.firstPage - defaultFirstPage;
+      var page = this.page + pageOffset;
+
       // 请求开始
       this.loading = true;
 
       this.$axios
-        .get(url + params)
+        .get(url + params + "&page=" + page)
         .then(function (resp) {
           var res = resp.data;
           var data = [];
 
           // 不分页
           if (!this$1.hasPagination) {
-            data = _get(res, dataPath) || _get(res, noPaginationDataPath) || [];
+            data =
+              _get(res, this$1.dataPath) || _get(res, noPaginationDataPath) || [];
           } else {
             data = _get(res, this$1.dataPath) || [];
             this$1.total = _get(res, this$1.totalPath);
@@ -521,7 +538,7 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         var newUrl = '';
         var searchQuery =
           queryFlag +
-          params
+          (params + "&page=" + (this.page))
             .replace(/&/g, paramSeparator)
             .replace(equalPattern, valueSeparator) +
           paramSeparator;
@@ -553,34 +570,28 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         history.pushState(history.state, 'el-data-table search', newUrl);
       }
     },
-    handleSizeChange: function handleSizeChange(val) {
-      if (this.size === val) { return }
+    search: function search() {
+      var this$1 = this;
 
-      this.page = this.firstPage;
-      this.size = val;
-      this.getList(true);
-    },
-    handleCurrentChange: function handleCurrentChange(val) {
-      if (this.page === val) { return }
+      this.$refs.searchForm.validate(function (valid) {
+        if (!valid) { return }
 
-      this.page = val;
-      this.getList(true);
-    },
-    handleSelectionChange: function handleSelectionChange(val) {
-      this.selected = val;
-
-      /**
-       * 多选启用时生效, 返回(selected)已选中行的数组
-       * @event selection-change
-       */
-      this.$emit('selection-change', val);
+        this$1.beforeSearch()
+          .then(function () {
+            this$1.page = defaultFirstPage;
+            this$1.getList(true);
+          })
+          .catch(function (err) {
+            this$1.$emit('error', err);
+          });
+      });
     },
     resetSearch: function resetSearch() {
       var this$1 = this;
 
       // reset后, form里的值会变成 undefined, 在下一次查询会赋值给query
       this.$refs.searchForm.resetFields();
-      this.page = this.firstPage;
+      this.page = defaultFirstPage;
 
       // 重置
       history.replaceState(
@@ -604,6 +615,28 @@ var component = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         'update:customQuery',
         Object.assign(this.customQuery, JSON.parse(this.initCustomQuery))
       );
+    },
+    handleSizeChange: function handleSizeChange(val) {
+      if (this.size === val) { return }
+
+      this.page = defaultFirstPage;
+      this.size = val;
+      this.getList(true);
+    },
+    handleCurrentChange: function handleCurrentChange(val) {
+      if (this.page === val) { return }
+
+      this.page = val;
+      this.getList(true);
+    },
+    handleSelectionChange: function handleSelectionChange(val) {
+      this.selected = val;
+
+      /**
+       * 多选启用时生效, 返回(selected)已选中行的数组
+       * @event selection-change
+       */
+      this.$emit('selection-change', val);
     },
     // 弹窗相关
     // 除非树形结构在操作列点击新增, 否则 row 都是 undefined
